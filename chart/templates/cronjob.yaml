@@ -1,0 +1,24 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-secret-sync 
+  namespace: {{ .Release.Namespace }}
+spec:
+  schedule: "{{ .Values.config.interval }}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: sync
+            image: jpapejr/syncpod:latest
+            env:
+            - name: SOURCE_NAMESPACE
+              value: {{ .Values.config.source.namespace }}
+            - name: SOURCE_SECRET
+              value: {{ .Values.config.source.secret }}
+            - name: TARGET_NAMESPACE
+              value: {{ .Values.config.target.namespace }}
+            - name: TARGET_SECRET
+              value: {{ .Values.config.target.secret }}
+          restartPolicy: OnFailure
